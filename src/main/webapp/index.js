@@ -2,12 +2,9 @@ let columns = [
     { header: 'Preço', xpath: '//*[@id="cards-ticker"]/div[1]/div[2]/div/span', type: 'currency', f: null },
     { header: 'VPA', xpath: '//*[@id="table-indicators"]/div[17]/div[1]/span', type: 'currency', f: null },
     { header: 'LPA', xpath: '//*[@id="table-indicators"]/div[18]/div[1]/span', type: 'currency', f: null },
+    { header: 'Dividendos', xpath: null, type: 'currency', f: getMinYearDividends },
 ];
-let map = new Map();
-map.set('Preço', '//*[@id="cards-ticker"]/div[1]/div[2]/div/span');
-// map.set('P/L', '//*[@id="table-indicators"]/div[1]/div[1]/span');
-map.set('VPA', '//*[@id="table-indicators"]/div[17]/div[1]/span');
-map.set('LPA', '//*[@id="table-indicators"]/div[18]/div[1]/span');
+let formatter = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
 async function logMovies(type, ticker) {
     const url = new URL("http://localhost:8080/Stock/webresources/stock");
     url.searchParams.append("ticker", ticker);
@@ -34,30 +31,51 @@ function createColumns(ticker, doc) {
     tbody.appendChild(tr);
     let td = tr.insertCell(-1);
     td.textContent = ticker.toUpperCase();
-    let formatter = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
     columns.forEach(obj => {
+        let td = tr.insertCell(-1);
         if (obj.xpath) {
             const iterator = doc.evaluate(obj.xpath, doc, null, XPathResult.ANY_TYPE, null);
             let element = iterator.iterateNext();
             let number = element.textContent.replace(/[^0-9,.]/g, '').replace(',', '.');
-            let td = tr.insertCell(-1);
             if (obj.type === 'currency') {
                 td.textContent = formatter.format(number);
             } else {
                 td.textContent = number;
             }
         }
+        if (obj.f) {
+            obj.f(doc, td);
+        }
     });
 }
-function getMinYearDividends(table) {
+function getMinYearDividends(doc, td) {
+    const iterator = doc.evaluate('//*[@id="table-dividends-history"]/tbody', doc, null, XPathResult.ANY_TYPE, null);
+    let table = iterator.iterateNext();
+    let map = new Map();
     [...table.rows].forEach(tr => {
         let data = tr.cells[2].textContent;
         const [day, month, year] = data.split('/');
         const date = new Date(+year, +month - 1, +day);
         let divi = tr.cells[3].textContent.replace(',', '.');
         let dividendos = Number(divi);
-        console.log(date, dividendos);
+        let fyear = date.getFullYear();
+        if (map.has(fyear)) {
+            let n = map.get(fyear);
+            n += dividendos;
+            map.set(fyear, n);
+        } else {
+            map.set(fyear, dividendos);
+        }
     });
+    let today = new Date();
+    let cYear = today.getFullYear();
+    let div = [];
+    for (let index = cYear - 6; index < cYear - 1; index++) {
+        div.push(map.get(index));
+    }
+    div.sort((a, b) => a - b);
+    let n = div.shift();
+    td.textContent = formatter.format(n);
 }
 function createDoc(html) {
     let parser = new DOMParser();
