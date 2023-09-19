@@ -6,7 +6,7 @@ import java.util.Set;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
-@ApplicationPath("/webresources")
+@ApplicationPath("webresources")
 public class MyApplication extends Application {
 
     private final Set<Object> singletons = new HashSet<>();
