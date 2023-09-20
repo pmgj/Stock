@@ -3,10 +3,12 @@ let columns = [
     { header: 'VPA', xpath: '//*[@id="table-indicators"]/div[17]/div[1]/span', type: 'currency', f: null },
     { header: 'LPA', xpath: '//*[@id="table-indicators"]/div[18]/div[1]/span', type: 'currency', f: null },
     { header: 'Dividendos', xpath: null, type: 'currency', f: getMinYearDividends },
-    { header: 'Quantidade', xpath: null, type: 'currency', f: computeStockQuantity },
+    { header: 'Quantidade', xpath: null, type: 'number', f: computeStockQuantity },
+    { header: 'Valor Corrente', xpath: null, type: 'currency', f: currentValue },
+    { header: 'Preço Alvo Bazil', xpath: null, type: 'currency', f: precoAlvoBazin },
 ];
-let formatter = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
-let matrix = [];
+let cFormatter = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
+let nFormatter = new Intl.NumberFormat('pt-br', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 async function addTicker(type, ticker) {
     const url = new URL("http://localhost:8080/Stock/webresources/stock");
     url.searchParams.append("ticker", ticker);
@@ -14,49 +16,26 @@ async function addTicker(type, ticker) {
     const response = await fetch(url.href);
     const html = await response.text();
     let doc = createDoc(html);
-    let thead = document.querySelector("thead");
-    if (!thead.rows[0]) {
-        let tr = document.createElement("tr");
-        thead.appendChild(tr);
-        let th = document.createElement("th");
-        tr.appendChild(th);
-        th.textContent = "Ticker";
-        columns.forEach(obj => {
-            let th = document.createElement("th");
-            tr.appendChild(th);
-            th.textContent = obj.header;
-        });
-    }
-    createColumns(ticker, doc);
+    return createColumns(ticker, doc);
 }
 function createColumns(ticker, doc) {
     let info = {};
-    let tbody = document.querySelector("tbody");
-    let tr = document.createElement("tr");
-    tbody.appendChild(tr);
-    let td = tr.insertCell(-1);
-    td.textContent = ticker.toUpperCase();
     info.ticker = ticker.toUpperCase();
+    info.values = new Map();
     columns.forEach(obj => {
-        info.header = obj.header;
-        let td = tr.insertCell(-1);
         if (obj.xpath) {
             const iterator = doc.evaluate(obj.xpath, doc, null, XPathResult.ANY_TYPE, null);
             let element = iterator.iterateNext();
             let number = element.textContent.replace(/[^0-9,.]/g, '').replace(',', '.');
-            info.value = number;
-            if (obj.type === 'currency') {
-                td.textContent = formatter.format(number);
-            } else {
-                td.textContent = number;
-            }
+            info.values.set(obj.header, { v: +number, t: obj.type });
         }
         if (obj.f) {
-            obj.f(doc, td);
+            info.values.set(obj.header, { v: obj.f(doc, info), t: obj.type });
         }
     });
+    return info;
 }
-function getMinYearDividends(doc, td) {
+function getMinYearDividends(doc) {
     const iterator = doc.evaluate('//*[@id="table-dividends-history"]/tbody', doc, null, XPathResult.ANY_TYPE, null);
     let table = iterator.iterateNext();
     let map = new Map();
@@ -82,16 +61,58 @@ function getMinYearDividends(doc, td) {
         div.push(map.get(index));
     }
     div.sort((a, b) => a - b);
-    let n = div.shift();
-    td.textContent = formatter.format(n);
+    return div.shift();
 }
 function createDoc(html) {
     let parser = new DOMParser();
     return parser.parseFromString(html, 'text/html');
 }
-function computeStockQuantity() {
+function computeStockQuantity(doc, info) {
     let salary = document.querySelector("#salario").valueAsNumber;
+    let dividendos = info.values.get("Dividendos").v;
+    return 12 * salary / (dividendos === 0 ? 0.01 : dividendos);
 }
-addTicker("acoes", "sanb11");
-addTicker("acoes", "brsr6");
-addTicker("acoes", "taee11");
+function currentValue(doc, info) {
+    let preco = info.values.get("Preço").v;
+    let quantidade = info.values.get("Quantidade").v;
+    return preco * quantidade;
+}
+function precoAlvoBazin(doc, info) {
+    let dividendos = info.values.get("Dividendos").v;
+    let rentabilidade = document.querySelector("#rentabilidade").valueAsNumber;
+    return 100 * dividendos / rentabilidade;
+}
+onload = () => {
+    let thead = document.querySelector("thead");
+    let tr = document.createElement("tr");
+    thead.appendChild(tr);
+    let th = document.createElement("th");
+    tr.appendChild(th);
+    th.textContent = "Ticker";
+    columns.forEach(obj => {
+        let th = document.createElement("th");
+        tr.appendChild(th);
+        th.textContent = obj.header;
+    });
+    let matrix = [];
+    matrix.push(addTicker("acoes", "sanb11"));
+    matrix.push(addTicker("acoes", "brsr6"));
+    matrix.push(addTicker("acoes", "taee11"));
+    Promise.all(matrix).then(array => {
+        let tbody = document.querySelector("tbody");
+        array.forEach(value => {
+            let tr = document.createElement("tr");
+            tbody.appendChild(tr);
+            let td = tr.insertCell(-1);
+            td.textContent = value.ticker;
+            value.values.forEach(elem => {
+                let td = tr.insertCell(-1);
+                if (elem.t === 'currency') {
+                    td.textContent = cFormatter.format(elem.v);
+                } else {
+                    td.textContent = nFormatter.format(elem.v);
+                }
+            });
+        });
+    });
+};
