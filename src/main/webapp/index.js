@@ -13,16 +13,18 @@ async function logMovies(type, ticker) {
     const html = await response.text();
     let doc = createDoc(html);
     let thead = document.querySelector("thead");
-    let tr = document.createElement("tr");
-    thead.appendChild(tr);
-    let th = document.createElement("th");
-    tr.appendChild(th);
-    th.textContent = "Ticker";
-    columns.forEach(obj => {
+    if (!thead.rows[0]) {
+        let tr = document.createElement("tr");
+        thead.appendChild(tr);
         let th = document.createElement("th");
         tr.appendChild(th);
-        th.textContent = obj.header;
-    });
+        th.textContent = "Ticker";
+        columns.forEach(obj => {
+            let th = document.createElement("th");
+            tr.appendChild(th);
+            th.textContent = obj.header;
+        });
+    }
     createColumns(ticker, doc);
 }
 function createColumns(ticker, doc) {
@@ -82,3 +84,5 @@ function createDoc(html) {
     return parser.parseFromString(html, 'text/html');
 }
 logMovies("acoes", "sanb11");
+logMovies("acoes", "brsr6");
+logMovies("acoes", "taee11");
