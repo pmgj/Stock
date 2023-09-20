@@ -3,9 +3,11 @@ let columns = [
     { header: 'VPA', xpath: '//*[@id="table-indicators"]/div[17]/div[1]/span', type: 'currency', f: null },
     { header: 'LPA', xpath: '//*[@id="table-indicators"]/div[18]/div[1]/span', type: 'currency', f: null },
     { header: 'Dividendos', xpath: null, type: 'currency', f: getMinYearDividends },
+    { header: 'Quantidade', xpath: null, type: 'currency', f: computeStockQuantity },
 ];
 let formatter = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
-async function logMovies(type, ticker) {
+let matrix = [];
+async function addTicker(type, ticker) {
     const url = new URL("http://localhost:8080/Stock/webresources/stock");
     url.searchParams.append("ticker", ticker);
     url.searchParams.append("type", type);
@@ -28,17 +30,21 @@ async function logMovies(type, ticker) {
     createColumns(ticker, doc);
 }
 function createColumns(ticker, doc) {
+    let info = {};
     let tbody = document.querySelector("tbody");
     let tr = document.createElement("tr");
     tbody.appendChild(tr);
     let td = tr.insertCell(-1);
     td.textContent = ticker.toUpperCase();
+    info.ticker = ticker.toUpperCase();
     columns.forEach(obj => {
+        info.header = obj.header;
         let td = tr.insertCell(-1);
         if (obj.xpath) {
             const iterator = doc.evaluate(obj.xpath, doc, null, XPathResult.ANY_TYPE, null);
             let element = iterator.iterateNext();
             let number = element.textContent.replace(/[^0-9,.]/g, '').replace(',', '.');
+            info.value = number;
             if (obj.type === 'currency') {
                 td.textContent = formatter.format(number);
             } else {
@@ -83,6 +89,9 @@ function createDoc(html) {
     let parser = new DOMParser();
     return parser.parseFromString(html, 'text/html');
 }
-logMovies("acoes", "sanb11");
-logMovies("acoes", "brsr6");
-logMovies("acoes", "taee11");
+function computeStockQuantity() {
+    let salary = document.querySelector("#salario").valueAsNumber;
+}
+addTicker("acoes", "sanb11");
+addTicker("acoes", "brsr6");
+addTicker("acoes", "taee11");
