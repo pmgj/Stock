@@ -61,37 +61,19 @@ async function addTicker(ticker) {
     url.searchParams.append("ticker", ticker);
     const response = await fetch(url.href);
     const json = await response.json();
-    return json;
+    let tbody = document.querySelector("tbody");
+    let tr = tbody.insertRow(-1);
+    columns.forEach(obj => {
+        let td = tr.insertCell(-1);
+        let result = obj.prop ? obj.f(json[obj.prop]) : obj.f(json);
+        td.textContent = (obj.type === 'currency') ? cFormatter.format(result) : (obj.type === 'number') ? nFormatter.format(result) : result;
+    });
 }
 function upperCase(v) {
     return v.toUpperCase();
 }
 function identity(v) {
     return v;
-}
-function getMinYearDividends(dividendos) {
-    let map = new Map();
-    dividendos.forEach(tr => {
-        let data = tr.payDate;
-        const date = new Date(data);
-        let dividendos = tr.value;
-        let fyear = date.getFullYear();
-        if (map.has(fyear)) {
-            let n = map.get(fyear);
-            n += dividendos;
-            map.set(fyear, n);
-        } else {
-            map.set(fyear, dividendos);
-        }
-    });
-    let today = new Date();
-    let cYear = today.getFullYear();
-    let div = [];
-    for (let index = cYear - 5; index <= cYear - 1; index++) {
-        div.push(map.get(index));
-    }
-    div.sort((a, b) => a - b);
-    return div.shift();
 }
 function computeDividends(dividendos) {
     let index = parseInt(document.querySelector("#dividendos").value);
@@ -129,19 +111,7 @@ onload = () => {
         tr.appendChild(th);
         th.textContent = obj.header;
     });
-    let matrix = [];
-    matrix.push(addTicker("sanb11"));
-    matrix.push(addTicker("brsr6"));
-    matrix.push(addTicker("taee11"));
-    Promise.all(matrix).then(array => {
-        let tbody = document.querySelector("tbody");
-        array.forEach(value => {
-            let tr = tbody.insertRow(-1);
-            columns.forEach(obj => {
-                let td = tr.insertCell(-1);
-                let result = (obj.prop) ? obj.f(value[obj.prop]) : obj.f(value);
-                td.textContent = (obj.type === 'currency') ? cFormatter.format(result) : (obj.type === 'number') ? nFormatter.format(result) : result;
-            });
-        });
-    });
+    addTicker("sanb11");
+    addTicker("brsr6");
+    addTicker("taee11");
 };
