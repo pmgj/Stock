@@ -74,8 +74,8 @@ public class Test {
                 "#indicators-section > div.indicator-today-container > div > div:nth-child(1) > div > div:nth-child(9) > div > div > strong");
         Double lpa = extract.apply(
                 "#indicators-section > div.indicator-today-container > div > div:nth-child(1) > div > div:nth-child(11) > div > div > strong");
-        Elements div = doc.select("#main-2 > div:nth-child(5) > div > div.pb-5 > div.card.p-2.p-xs-3.mb-5");
-        String dl = div.attr("data-list");
+        Elements div = doc.select("#earning-section #results");
+        String dl = div.attr("value");
         List<JSONDividends> list = JsonbBuilder.create().fromJson(dl, new ArrayList<JSONDividends>() {
         }.getClass().getGenericSuperclass());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
