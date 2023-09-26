@@ -44,6 +44,8 @@ public class StockResource {
                 "#indicators-section > div.indicator-today-container > div > div:nth-child(1) > div > div:nth-child(9) > div > div > strong");
         Double lpa = extract.apply(
                 "#indicators-section > div.indicator-today-container > div > div:nth-child(1) > div > div:nth-child(11) > div > div > strong");
+        Double pvp = extract.apply(
+                "#indicators-section > div.indicator-today-container > div > div:nth-child(1) > div > div:nth-child(4) > div > div > strong");
         Elements div = doc.select("#earning-section #results");
         String dl = div.attr("value");
         List<JSONDividends> list = JsonbBuilder.create().fromJson(dl, new ArrayList<JSONDividends>() {
@@ -61,7 +63,7 @@ public class StockResource {
             Double dividend = jsonDividends.v();
             dividends.add(new Dividends(date, dividend));
         }
-        OutputData out = new OutputData(ticker, price, vpa, lpa, dividends);
+        OutputData out = new OutputData(ticker, price, vpa, lpa, pvp, dividends);
         return JsonbBuilder.create().toJson(out);
     }
 }
