@@ -87,6 +87,8 @@ class GUI {
         this.addTicker("sanb11");
         this.addTicker("brsr6");
         this.addTicker("taee11");
+        let newTableObject = document.querySelector("table");
+        sorttable.makeSortable(newTableObject);
     }
 }
 let gui = new GUI();
