@@ -2,6 +2,8 @@ package controller;
 
 import java.time.LocalDate;
 
-public record Dividends(LocalDate payDate, double value) {
+import jakarta.json.bind.annotation.JsonbDateFormat;
+
+public record Dividends(@JsonbDateFormat(value = "dd/MM/yyyy") LocalDate pd, double v) {
     
 }

@@ -8,9 +8,10 @@ class Dividends {
     getDividendsByYear() {
         let map = new Map();
         this.matrix.forEach(tr => {
-            let data = tr.payDate;
-            const date = new Date(data);
-            let dividendos = tr.value;
+            let dateString = tr.pd;
+            let [day, month, year] = dateString.split('/');
+            const date = new Date(+year, +month - 1, +day);
+            let dividendos = tr.v;
             let fyear = date.getFullYear();
             if (map.has(fyear)) {
                 let n = map.get(fyear);
