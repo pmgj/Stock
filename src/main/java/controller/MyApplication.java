@@ -15,6 +15,7 @@ public class MyApplication extends Application {
     public MyApplication() {
 //        singletons.add(new WorkersResource());
         empty.add(StockResource.class);
+        empty.add(FIIResource.class);
     }
 
     @Override

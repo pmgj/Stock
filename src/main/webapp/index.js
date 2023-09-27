@@ -7,6 +7,8 @@ class GUI {
             { header: 'Preço', prop: "preco", type: 'currency', f: this.identity },
             { header: 'VPA', prop: "vpa", type: 'currency', f: this.identity },
             { header: 'LPA', prop: "lpa", type: 'currency', f: this.identity },
+            { header: 'P/L', type: 'number', f: this.pl.bind(this) },
+            { header: 'P/VP', type: 'number', f: this.pvp.bind(this) },
             { header: 'Dividendos', prop: "dividendos", type: 'currency', f: this.computeDividends.bind(this) },
             { header: 'Quantidade', type: 'number', f: this.computeStockQuantity.bind(this) },
             { header: 'Valor Corrente', type: 'currency', f: this.computeCurrentValue.bind(this) },
@@ -15,7 +17,7 @@ class GUI {
         ];
         this.DIVIDENDS = [new MinFiveYear()];
         this.CURRENCY_FORMATTER = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
-        this.NUMBER_FORMATTER = new Intl.NumberFormat('pt-br', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        this.NUMBER_FORMATTER = new Intl.NumberFormat('pt-br', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
     async addTicker(ticker) {
         const url = new URL("http://localhost:8080/Stock/webresources/stock");
@@ -29,6 +31,16 @@ class GUI {
             let result = obj.prop ? obj.f(json[obj.prop]) : obj.f(json);
             td.textContent = (obj.type === 'currency') ? this.CURRENCY_FORMATTER.format(result) : (obj.type === 'number') ? this.NUMBER_FORMATTER.format(result) : result;
         });
+    }
+    pl(obj) {
+        let preco = obj.preco;
+        let lpa = obj.lpa;
+        return preco / lpa;
+    }
+    pvp(obj) {
+        let preco = obj.preco;
+        let vpa = obj.vpa;
+        return preco / vpa;
     }
     upperCase(v) {
         return v.toUpperCase();
