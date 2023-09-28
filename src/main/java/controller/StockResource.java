@@ -39,7 +39,7 @@ public class StockResource {
         String dl = div.attr("value");
         List<Dividends> dividends = JsonbBuilder.create().fromJson(dl, new ArrayList<Dividends>() {
         }.getClass().getGenericSuperclass());
-        OutputData out = new OutputData(ticker, price, vpa, lpa, pvp, dividends);
+        StockData out = new StockData(ticker, price, vpa, lpa, pvp, dividends);
         return JsonbBuilder.create().toJson(out);
     }
 }
