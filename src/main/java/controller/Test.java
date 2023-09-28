@@ -26,11 +26,12 @@ public class Test {
                 "#main-2 > div.container.pb-7 > div:nth-child(5) > div > div:nth-child(6) > div > div:nth-child(1) > strong");
         Double liquidez = extract.apply(
                 "#main-2 > div.container.pb-7 > div:nth-child(6) > div > div > div.info.p-0 > div > div > div > strong");
+        String segmento = doc.select("#fund-section > div > div > div.card.bg-main-gd-h.white-text.rounded.pt-1.pb-1 > div > div:nth-child(1) > div > div > div > a > strong").first().text();
         Elements div = doc.select("#earning-section #results");
         String dl = div.attr("value");
         List<Dividends> dividends = JsonbBuilder.create().fromJson(dl, new ArrayList<Dividends>() {
         }.getClass().getGenericSuperclass());
-        FIIData out = new FIIData(ticker, price, pvp, cotistas, liquidez, dividends);
+        FIIData out = new FIIData(ticker, price, pvp, cotistas, liquidez, segmento, dividends);
         System.out.println(JsonbBuilder.create().toJson(out));
     }
 
