@@ -4,6 +4,6 @@ import java.time.LocalDate;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
 
-public record Dividends(@JsonbDateFormat(value = "dd/MM/yyyy") LocalDate pd, double v) {
+public record Dividends(@JsonbDateFormat(value = "dd/MM/yyyy") LocalDate ed, double v) {
     
 }

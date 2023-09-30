@@ -8,7 +8,7 @@ class Dividends {
     getDividendsByYear() {
         let map = new Map();
         this.matrix.forEach(tr => {
-            let dateString = tr.pd;
+            let dateString = tr.ed;
             let [day, month, year] = dateString.split('/');
             const date = new Date(+year, +month - 1, +day);
             let dividendos = tr.v;
