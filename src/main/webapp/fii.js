@@ -16,12 +16,14 @@ class GUI {
             { header: 'Desconto', type: 'percent', f: this.computeDiscount.bind(this) },
         ];
         this.DIVIDENDS = [new MinFiveYear()];
+        this.data = [];
     }
     async addTicker(ticker) {
         const url = new URL("http://localhost:8080/Stock/webresources/fii");
         url.searchParams.append("ticker", ticker);
         const response = await fetch(url.href);
         const json = await response.json();
+        this.data.push(json);
         let tbody = document.querySelector("tbody");
         let tr = tbody.insertRow(-1);
         let formatters = {
@@ -77,33 +79,10 @@ class GUI {
             tr.appendChild(th);
             th.textContent = obj.header;
         });
-        let fiis = ["KNCR11",
-            "HFOF11",
-            "VILG11",
-            "BRCO11",
-            "BTLG11",
-            "XPML11",
-            "VISC11",
-            "PVBI11",
-            "HGLG11",
-            "XPLG11",
-            "LVBI11",
-            "HSLG11",
-            "GGRC11",
-            "TRBL11",
-            "RBRL11",
-            "XPIN11",
-            "HCTR11",
-            "MXRF11",
-            "IRDM11",
-            "RBRF11",
-            "JSRE11",
-            "KCRE11",
-            "KNSC11",
-            "RBRY11",
-            "KNRI11",
-            "VRTA11",
-            "HGRE11"];
+        let fiis = ["KNCR11", "HFOF11", "VILG11", "BRCO11", "BTLG11", "XPML11", "VISC11", "PVBI11", "HGLG11",
+            "XPLG11", "LVBI11", "HSLG11", "GGRC11", "TRBL11", "RBRL11", "XPIN11", "HCTR11", "MXRF11", "IRDM11",
+            "RBRF11", "JSRE11", "KCRE11", "KNSC11", "RBRY11", "KNRI11", "VRTA11", "HGRE11", "CPTS11", "BCFF11", 
+            "ALZR11", "HLOG11"];
         fiis.forEach(fii => this.addTicker(fii));
         let newTableObject = document.querySelector("table");
         sorttable.makeSortable(newTableObject);

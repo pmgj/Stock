@@ -16,8 +16,6 @@ class GUI {
             { header: 'Preço Alvo Graham', type: 'currency', f: this.computePrecoAlvoGraham.bind(this) },
         ];
         this.DIVIDENDS = [new MinFiveYear()];
-        this.CURRENCY_FORMATTER = new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' });
-        this.NUMBER_FORMATTER = new Intl.NumberFormat('pt-br', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
     async addTicker(ticker) {
         const url = new URL("http://localhost:8080/Stock/webresources/stock");
@@ -26,10 +24,15 @@ class GUI {
         const json = await response.json();
         let tbody = document.querySelector("tbody");
         let tr = tbody.insertRow(-1);
+        let formatters = {
+            "currency": new Intl.NumberFormat('pt-br', { style: 'currency', currency: 'BRL' }),
+            "number": new Intl.NumberFormat('pt-br', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            "percent": new Intl.NumberFormat('pt-br', { style: 'percent' })
+        };
         this.COLUMNS.forEach(obj => {
             let td = tr.insertCell(-1);
             let result = obj.prop ? obj.f(json[obj.prop]) : obj.f(json);
-            td.textContent = (obj.type === 'currency') ? this.CURRENCY_FORMATTER.format(result) : (obj.type === 'number') ? this.NUMBER_FORMATTER.format(result) : result;
+            td.textContent = formatters[obj.type] ? formatters[obj.type].format(result) : result;
         });
     }
     pl(obj) {
@@ -84,7 +87,9 @@ class GUI {
             tr.appendChild(th);
             th.textContent = obj.header;
         });
-        let stocks = ["sanb11", "brsr6", "tae11"];
+        let stocks = ["sanb11", "brsr6", "taee11", "bbas3", "petr4", "sapr11", "cmig4", "pssa3", "itsa4", "trpl4",
+            "bbse3", "bbdc4", "cxse3", "csmg3", "vale3", "klbn11", "csan3", "irbr3", "cple6", "cpfe3", "enbr3", "sbsp3",
+            "aesb3", "eqtl3", "abcb4"];
         stocks.forEach(stock => this.addTicker(stock));
         let newTableObject = document.querySelector("table");
         sorttable.makeSortable(newTableObject);
