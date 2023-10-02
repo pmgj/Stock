@@ -79,10 +79,48 @@ class GUI {
             tr.appendChild(th);
             th.textContent = obj.header;
         });
-        let fiis = ["KNCR11", "HFOF11", "VILG11", "BRCO11", "BTLG11", "XPML11", "VISC11", "PVBI11", "HGLG11",
-            "XPLG11", "LVBI11", "HSLG11", "GGRC11", "TRBL11", "RBRL11", "XPIN11", "HCTR11", "MXRF11", "IRDM11",
-            "RBRF11", "JSRE11", "KCRE11", "KNSC11", "RBRY11", "KNRI11", "VRTA11", "HGRE11", "CPTS11", "BCFF11", 
-            "ALZR11", "HLOG11"];
+        let fiis = [
+            "ALZR11",
+            "BCFF11",
+            "BRCO11",
+            "BTLG11",
+            "CPTS11",
+            "GGRC11",
+            "HCTR11",
+            "HFOF11",
+            "HGLG11",
+            "HGRE11",
+            "HGRU11",
+            "HLOG11",
+            "HSLG11",
+            "HSML11",
+            "IRDM11",
+            "JSRE11",
+            "KCRE11",
+            "KNCR11",
+            "KNHY11",
+            "KNRI11",
+            "KNSC11",
+            "LVBI11",
+            "MALL11",
+            "MCCI11",
+            "MXRF11",
+            "PVBI11",
+            "RBRF11",
+            "RBRL11",
+            "RBRP11",
+            "RBRR11",
+            "RBRY11",
+            "RECR11",
+            "TRBL11",
+            "TRFX11",
+            "VILG11",
+            "VISC11",
+            "VRTA11",
+            "XPIN11",
+            "XPLG11",
+            "XPML11"
+        ];
         fiis.forEach(fii => this.addTicker(fii));
         let newTableObject = document.querySelector("table");
         sorttable.makeSortable(newTableObject);
