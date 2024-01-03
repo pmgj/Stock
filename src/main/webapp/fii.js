@@ -76,6 +76,7 @@ class GUI {
         let tr = thead.insertRow(-1);
         this.COLUMNS.forEach(obj => {
             let th = document.createElement("th");
+            th.className = obj.type !== "string" ? "sorttable_numeric" : "sorttable_alpha";
             tr.appendChild(th);
             th.textContent = obj.header;
         });
